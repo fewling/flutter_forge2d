@@ -22,6 +22,7 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
+  var _speed = 100 / 1000; // 100 ms
   var myGame = GameSide();
 
   @override
@@ -49,17 +50,29 @@ class _HomeState extends ConsumerState<Home> {
           Tooltip(
             message: 'Restart',
             child: IconButton(
-              onPressed: () {
-                setState(() {
-                  myGame.secondsTimer.cancel();
-                  myGame = GameSide();
-                });
-              },
+              onPressed: () => setState(() => myGame.reset()),
               icon: const Icon(Icons.restart_alt_outlined),
             ),
           ),
           const SizedBox(width: 8),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Slider(
+            value: _speed,
+            min: 0.1,
+            max: 10,
+            label: '${_speed.toStringAsPrecision(2)} (sec)',
+            divisions: 100,
+            onChanged: (value) {
+              final ms = (value * 1000).toInt();
+              setState(() {
+                _speed = value;
+                myGame.resetTimer(Duration(milliseconds: ms));
+              });
+            },
+          ),
+        ),
       ),
       body: Stack(
         children: [

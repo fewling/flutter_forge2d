@@ -1,37 +1,14 @@
 import 'package:flame_forge2d/flame_forge2d.dart' hide Transform;
 import 'package:flutter/material.dart';
+import 'package:flutter_forge2d/common/ticking_builder.dart';
 
 import '../game/game_side.dart';
 import 'home.dart';
 
-class GameMirror extends StatefulWidget {
+class GameMirror extends StatelessWidget {
   const GameMirror({super.key, required this.game});
 
   final GameSide game;
-
-  @override
-  State<GameMirror> createState() => _GameMirrorState();
-}
-
-class _GameMirrorState extends State<GameMirror>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(days: 1),
-    );
-    _controller.repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,68 +22,67 @@ class _GameMirrorState extends State<GameMirror>
     final secSize = secRenderObj?.semanticBounds.size ?? Size.zero;
     final minSyze = minRenderObj?.semanticBounds.size ?? Size.zero;
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final game = widget.game;
+    return Scaffold(
+      body: TickingBuilder(
+        builder: (context, child) {
+          final secOffset = game
+              .screenToWorld(Vector2(secSize.width / 2, secSize.height / 2));
+          final minOffset = game
+              .screenToWorld(Vector2(minSyze.width / 2, minSyze.height / 2));
 
-        final secOffset =
-            game.screenToWorld(Vector2(secSize.width / 2, secSize.height / 2));
-        final minOffset =
-            game.screenToWorld(Vector2(minSyze.width / 2, minSyze.height / 2));
+          return Stack(
+            children: [
+              ...game.minBodies.map((minBody) {
+                final b = minBody.body;
+                final pos = game.worldToScreen(b.worldCenter - minOffset);
+                return FallingWidget(
+                  left: pos.x,
+                  top: pos.y,
+                  angle: b.angle,
+                  msg: minBody.msg,
+                  style: displayLarge,
+                  // shape: const CircleBorder(),
+                );
+              }),
+              ...game.secBodies.map((secBody) {
+                final b = secBody.body;
+                final pos = game.worldToScreen(b.worldCenter - secOffset);
 
-        return Stack(
-          children: [
-            ...widget.game.minBodies.map((minBody) {
-              final b = minBody.body;
-              final pos = widget.game.worldToScreen(b.worldCenter - minOffset);
-              return FallingWidget(
-                left: pos.x,
-                top: pos.y,
-                angle: b.angle,
-                msg: minBody.msg,
-                style: displayLarge,
-                // shape: const CircleBorder(),
-              );
-            }),
-            ...widget.game.secBodies.map((secBody) {
-              final b = secBody.body;
-              final pos = widget.game.worldToScreen(b.worldCenter - secOffset);
+                return FallingWidget(
+                  left: pos.x,
+                  top: pos.y,
+                  angle: b.angle,
+                  msg: secBody.msg,
+                  style: titleLarge,
+                );
+              }),
+              ...game.permeableBodies.map((permeableBody) {
+                final b = permeableBody.body;
+                final pos = game.worldToScreen(b.worldCenter - secOffset);
 
-              return FallingWidget(
-                left: pos.x,
-                top: pos.y,
-                angle: b.angle,
-                msg: secBody.msg,
-                style: titleLarge,
-              );
-            }),
-            ...widget.game.permeableBodies.map((permeableBody) {
-              final b = permeableBody.body;
-              final pos = widget.game.worldToScreen(b.worldCenter - secOffset);
-
-              return FallingWidget(
-                left: pos.x,
-                top: pos.y,
-                angle: b.angle,
-                msg: '',
-                style: titleLarge,
-                child: Card(
-                  color: colorScheme.background,
-                  child: SizedBox(
-                    width: permeableBody.type == FallingBodyType.seconds
-                        ? secSize.width
-                        : minSyze.width,
-                    height: permeableBody.type == FallingBodyType.seconds
-                        ? secSize.height
-                        : minSyze.height,
+                return FallingWidget(
+                  left: pos.x,
+                  top: pos.y,
+                  angle: b.angle,
+                  msg: '',
+                  style: titleLarge,
+                  child: Card(
+                    color: colorScheme.background,
+                    child: SizedBox(
+                      width: permeableBody.type == FallingBodyType.seconds
+                          ? secSize.width
+                          : minSyze.width,
+                      height: permeableBody.type == FallingBodyType.seconds
+                          ? secSize.height
+                          : minSyze.height,
+                    ),
                   ),
-                ),
-              );
-            }),
-          ],
-        );
-      },
+                );
+              }),
+            ],
+          );
+        },
+      ),
     );
   }
 }

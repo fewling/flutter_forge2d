@@ -9,9 +9,9 @@ import '../screens/home.dart';
 class GameSide extends Forge2DGame {
   GameSide() : super(gravity: Vector2(0, 50.0));
 
-  late Timer secondsTimer;
-  int elapsedSeconds = 0;
-  int elapsedMinutes = 0;
+  late Timer _timer;
+  var elapsedSeconds = 0;
+  var elapsedMinutes = 0;
 
   final secBodies = <FallingBody>[];
   final minBodies = <FallingBody>[];
@@ -21,8 +21,52 @@ class GameSide extends Forge2DGame {
   void onAttach() {
     super.onAttach();
     final x = size.x / 2;
-    secondsTimer = Timer.periodic(
-      const Duration(milliseconds: 1000),
+    _timer = _initTimer(x: x);
+  }
+
+  @override
+  void onDetach() {
+    _timer.cancel();
+    super.onDetach();
+  }
+
+  @override
+  Future<void> onLoad() async {
+    final boundaries = createBoundaries(this);
+    addAll(boundaries);
+  }
+
+  List<Wall> createBoundaries(Forge2DGame game) {
+    final topLeft = Vector2.zero() - Vector2(0, 100);
+    final bottomRight = game.screenToWorld(game.camera.viewport.effectiveSize);
+    final topRight = Vector2(bottomRight.x, topLeft.y);
+    final bottomLeft = Vector2(topLeft.x, bottomRight.y);
+
+    return [
+      // Wall(topLeft, topRight),
+      Wall(topRight, bottomRight),
+      Wall(bottomRight, bottomLeft),
+      Wall(bottomLeft, topLeft),
+    ];
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    permeableBodies
+        .where((element) => element.body.position.y > size.y)
+        .forEach((element) {
+      element.removeFromParent();
+    });
+    permeableBodies.removeWhere((b) => b.body.position.y > size.y);
+  }
+
+  Timer _initTimer({
+    required double x,
+    Duration duration = const Duration(milliseconds: 100),
+  }) {
+    return Timer.periodic(
+      duration,
       (timer) async {
         elapsedSeconds += 1;
 
@@ -96,41 +140,29 @@ class GameSide extends Forge2DGame {
     );
   }
 
-  @override
-  void onDetach() {
-    secondsTimer.cancel();
-    super.onDetach();
+  void resetTimer(Duration duration) {
+    _timer.cancel();
+    _timer = _initTimer(x: size.x / 2, duration: duration);
   }
 
-  @override
-  Future<void> onLoad() async {
-    final boundaries = createBoundaries(this);
-    addAll(boundaries);
-  }
+  void cancelTimer() => _timer.cancel();
 
-  List<Wall> createBoundaries(Forge2DGame game) {
-    final topLeft = Vector2.zero() - Vector2(0, 100);
-    final bottomRight = game.screenToWorld(game.camera.viewport.effectiveSize);
-    final topRight = Vector2(bottomRight.x, topLeft.y);
-    final bottomLeft = Vector2(topLeft.x, bottomRight.y);
-
-    return [
-      // Wall(topLeft, topRight),
-      Wall(topRight, bottomRight),
-      Wall(bottomRight, bottomLeft),
-      Wall(bottomLeft, topLeft),
-    ];
-  }
-
-  @override
-  void updateTree(double dt) {
-    super.updateTree(dt);
-    permeableBodies
-        .where((element) => element.body.position.y > size.y)
-        .forEach((element) {
+  void reset() {
+    elapsedSeconds = 0;
+    elapsedMinutes = 0;
+    for (var element in secBodies) {
       element.removeFromParent();
-    });
-    permeableBodies.removeWhere((b) => b.body.position.y > size.y);
+    }
+    for (var element in minBodies) {
+      element.removeFromParent();
+    }
+    for (var element in permeableBodies) {
+      element.removeFromParent();
+    }
+    secBodies.clear();
+    minBodies.clear();
+    permeableBodies.clear();
+    resetTimer(const Duration(milliseconds: 100));
   }
 }
 
