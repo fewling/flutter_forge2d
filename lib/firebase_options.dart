@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD-nlkreYO47YgHNYMmFdwzefY5G0qFOF8',
-    appId: '1:952512317577:android:c152e15d29a137e6371e58',
+    appId: '1:952512317577:android:9ba364643e5199c4371e58',
     messagingSenderId: '952512317577',
     projectId: 'flutter-forge2d',
     storageBucket: 'flutter-forge2d.appspot.com',
@@ -63,21 +63,21 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBIu8cPl7oei9AWX4azNdQQ0bMknXO0pdg',
-    appId: '1:952512317577:ios:12bef500712c0fdf371e58',
+    appId: '1:952512317577:ios:12940675cea544e4371e58',
     messagingSenderId: '952512317577',
     projectId: 'flutter-forge2d',
     storageBucket: 'flutter-forge2d.appspot.com',
-    iosClientId: '952512317577-pt07ign5j4jg7p0ob2pitmgdmg382407.apps.googleusercontent.com',
-    iosBundleId: 'com.example.forge2dTest',
+    iosClientId: '952512317577-r0t5gafgfqmb28m7imgar58nujlp87gl.apps.googleusercontent.com',
+    iosBundleId: 'com.example.flutterForge2d',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBIu8cPl7oei9AWX4azNdQQ0bMknXO0pdg',
-    appId: '1:952512317577:ios:12bef500712c0fdf371e58',
+    appId: '1:952512317577:ios:21586418de54423f371e58',
     messagingSenderId: '952512317577',
     projectId: 'flutter-forge2d',
     storageBucket: 'flutter-forge2d.appspot.com',
-    iosClientId: '952512317577-pt07ign5j4jg7p0ob2pitmgdmg382407.apps.googleusercontent.com',
-    iosBundleId: 'com.example.forge2dTest',
+    iosClientId: '952512317577-8q1dsa2au8n5bc8rtsip1gmd5k8r5ol3.apps.googleusercontent.com',
+    iosBundleId: 'com.example.flutterForge2d.RunnerTests',
   );
 }

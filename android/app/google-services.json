@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "952512317577",
+    "project_id": "flutter-forge2d",
+    "storage_bucket": "flutter-forge2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952512317577:android:9ba364643e5199c4371e58",
+        "android_client_info": {
+          "package_name": "com.example.flutter_forge2d"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "952512317577-h15gc1qntmieps9baco985drrrdb9fmk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-nlkreYO47YgHNYMmFdwzefY5G0qFOF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "952512317577-h15gc1qntmieps9baco985drrrdb9fmk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "952512317577-8q1dsa2au8n5bc8rtsip1gmd5k8r5ol3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterForge2d.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952512317577:android:c152e15d29a137e6371e58",
+        "android_client_info": {
+          "package_name": "com.example.forge2d_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "952512317577-h15gc1qntmieps9baco985drrrdb9fmk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-nlkreYO47YgHNYMmFdwzefY5G0qFOF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "952512317577-h15gc1qntmieps9baco985drrrdb9fmk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "952512317577-8q1dsa2au8n5bc8rtsip1gmd5k8r5ol3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterForge2d.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
