@@ -60,22 +60,6 @@ class _ClockRainScreenState extends State<ClockRainScreen>
           ],
         ),
       ),
-      // body: TickingBuilder(builder: (context, time) {
-      //   final secBodies = widget.game.secondBodies;
-      //   final minBodies = widget.game.minuteBodies;
-      //   final hourBodies = widget.game.hourBodies;
-
-      //   return Stack(
-      //     children: [
-      //       for (final body in secBodies)
-      //         _buildBodyWidget(body, secondTextStyle),
-      //       for (final body in minBodies)
-      //         _buildBodyWidget(body, minuteTextStyle),
-      //       for (final body in hourBodies)
-      //         _buildBodyWidget(body, hourTextStyle),
-      //     ],
-      //   );
-      // }),
     );
   }
 
