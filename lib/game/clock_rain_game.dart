@@ -123,23 +123,15 @@ class ClockRainGame extends Forge2DGame {
   }
 
   Future<void> _createMinuteBody(Color backgroundColor) async {
-    final minuteRenderObj =
-        measureMinutesKey.currentContext?.findRenderObject();
-    final minuteSize = minuteRenderObj?.semanticBounds.size ?? Size.zero;
-    final minuteScale =
-        screenToWorld(Vector2(minuteSize.width / 2, minuteSize.height / 2));
-
-    final hourRenderObj = measureHoursKey.currentContext?.findRenderObject();
-    final hourSize = hourRenderObj?.semanticBounds.size ?? Size.zero;
-    final hourScale =
-        screenToWorld(Vector2(hourSize.width / 2, hourSize.height / 2));
-
-    final spawnX = hourScale.x * 2.5;
+    final worldSize = screenToWorld(camera.viewport.effectiveSize);
+    final renderObj = measureMinutesKey.currentContext?.findRenderObject();
+    final syze = renderObj?.semanticBounds.size ?? Size.zero;
+    final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
 
     final fallingBody = ClockFallingBody(
-      pos: Vector2(spawnX, -minuteScale.y),
-      w: minuteScale.x,
-      h: minuteScale.y,
+      pos: Vector2(worldSize.x / 4, -scale.y),
+      w: scale.x,
+      h: scale.y,
       time: DateTime.now(),
       type: FallingBodyType.minutes,
       backgroundColor: backgroundColor,
