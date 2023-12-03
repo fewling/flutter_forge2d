@@ -215,6 +215,20 @@ class ClockRainGame extends Forge2DGame {
       return tooSmall;
     });
   }
+
+  void clearAll() {
+    for (final fallingBody in [
+      ...secondBodies,
+      ...minuteBodies,
+      ...hourBodies
+    ]) {
+      fallingBody.shrinkRate = 0.9;
+    }
+
+    _second = -1;
+    _minute = -1;
+    _hour = -1;
+  }
 }
 
 class Wall extends BodyComponent {

@@ -21,7 +21,7 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
-  final clockRainGame = ClockRainGame();
+  final _clockRainGame = ClockRainGame();
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +36,18 @@ class _HomeState extends ConsumerState<Home> {
       appBar: AppBar(
         actions: [
           IconButton(
+            tooltip: 'Clear all',
+            onPressed: () => _clockRainGame.clearAll(),
+            icon: const Icon(Icons.clear_all),
+          ),
+          IconButton(
             tooltip: isDarkMode ? 'Light mode' : 'Dark mode',
             onPressed: () {
               ref.read(appPreferenceProvider.notifier).toggleBrightness();
             },
             icon: isDarkMode
-                ? const Icon(Icons.light_mode)
-                : const Icon(Icons.dark_mode),
+                ? const Icon(Icons.light_mode_outlined)
+                : const Icon(Icons.dark_mode_outlined),
           ),
           const SizedBox(width: 8),
         ],
@@ -75,7 +80,7 @@ class _HomeState extends ConsumerState<Home> {
             ),
           ),
           GameWidget<ClockRainGame>(
-            game: clockRainGame,
+            game: _clockRainGame,
             overlayBuilderMap: {
               'clockRainScreen': (context, game) => ClockRainScreen(game: game),
             },
