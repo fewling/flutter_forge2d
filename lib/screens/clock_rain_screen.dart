@@ -49,7 +49,6 @@ class ClockRainScreen extends ConsumerWidget {
         measureMinutesKey.currentContext?.findRenderObject(),
       FallingBodyType.hour =>
         measureHoursKey.currentContext?.findRenderObject(),
-      FallingBodyType.unknown => null,
     };
     final syze = renderObj?.semanticBounds.size ?? Size.zero;
     final offset = game.screenToWorld(Vector2(syze.width / 2, syze.height / 2));

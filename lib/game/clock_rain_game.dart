@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../screens/home.dart';
 
 class ClockRainGame extends Forge2DGame {
-  ClockRainGame() : super(gravity: Vector2(0, 50));
+  ClockRainGame() : super(gravity: Vector2(0, 30));
   late Timer _timer;
 
   var _second = -1;
@@ -65,12 +65,12 @@ class ClockRainGame extends Forge2DGame {
       final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
 
       final fallingBody = ClockFallingBody(
-        pos: Vector2(worldSize.x - 5, -5),
+        pos: Vector2(worldSize.x - scale.x, -scale.y),
         w: scale.x,
         h: scale.y,
         msg: _second.toString().padLeft(2, '0'),
         type: FallingBodyType.seconds,
-        angularVelocity: Random().nextDouble() * 6,
+        angularVelocity: Random().nextDouble() * pi * 2,
       );
       add(fallingBody);
       secondBodies.add(fallingBody);
@@ -84,7 +84,7 @@ class ClockRainGame extends Forge2DGame {
       final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
 
       final fallingBody = ClockFallingBody(
-        pos: Vector2(worldSize.x / 2, -5),
+        pos: Vector2(worldSize.x / 2, -scale.y),
         w: scale.x,
         h: scale.y,
         msg: _minute.toString().padLeft(2, '0'),
@@ -102,7 +102,7 @@ class ClockRainGame extends Forge2DGame {
       final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
 
       final fallingBody = ClockFallingBody(
-        pos: Vector2(5, -5),
+        pos: Vector2(scale.x, -scale.y),
         w: scale.x,
         h: scale.y,
         msg: _hour.toString().padLeft(2, '0'),
@@ -155,7 +155,6 @@ enum FallingBodyType {
   seconds,
   minutes,
   hour,
-  unknown,
 }
 
 class ClockFallingBody extends BodyComponent {
@@ -183,16 +182,25 @@ class ClockFallingBody extends BodyComponent {
       position: pos,
       type: BodyType.dynamic,
     );
+
+    final friction = type == FallingBodyType.seconds ? 0.8 : 0.3;
+
+    final restitution = switch (type) {
+      FallingBodyType.seconds => 0.3,
+      FallingBodyType.minutes => 0.2,
+      FallingBodyType.hour => 0.1,
+    };
+
     final body = world.createBody(bodyDef);
     final shape = PolygonShape()..setAsBoxXY(w, h);
     final fixtureDef = FixtureDef(
       shape,
-      density: type == FallingBodyType.seconds ? 10 : 50,
-      restitution: 0.5,
-      friction: 0.5,
+      density: type == FallingBodyType.seconds ? 1 : 5,
+      restitution: restitution,
+      friction: friction,
     );
     body.createFixture(fixtureDef);
-    renderBody = true;
+    renderBody = false;
     return body;
   }
 
