@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flame/components.dart' hide Timer;
 import 'package:flame_forge2d/flame_forge2d.dart' hide Timer;
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,8 @@ class ClockRainGame extends Forge2DGame {
   final secondBodies = <ClockFallingBody>[];
   final minuteBodies = <ClockFallingBody>[];
   final hourBodies = <ClockFallingBody>[];
+
+  var _materialColorIndex = 0;
 
   @override
   Future<void> onAttach() async {
@@ -58,7 +61,13 @@ class ClockRainGame extends Forge2DGame {
     final currentHour = current.hour;
     final worldSize = screenToWorld(camera.viewport.effectiveSize);
 
-    if (_second != currentSec) {
+    final oneSecPassed = _second != currentSec;
+    final oneMinPassed = _minute != currentMin;
+    final oneHourPassed = _hour != currentHour;
+
+    if (oneHourPassed) _switchColor();
+
+    if (oneSecPassed) {
       _second = currentSec;
 
       final renderObj = measureSecondsKey.currentContext?.findRenderObject();
@@ -72,12 +81,13 @@ class ClockRainGame extends Forge2DGame {
         time: DateTime.now(),
         type: FallingBodyType.seconds,
         angularVelocity: -Random().nextDouble() * pi * 2,
+        backgroundColor: Colors.primaries[_materialColorIndex],
       );
       await add(fallingBody);
       secondBodies.add(fallingBody);
     }
 
-    if (_minute != currentMin) {
+    if (oneMinPassed) {
       _minute = currentMin;
 
       for (final fallingBody in secondBodies) {
@@ -95,12 +105,13 @@ class ClockRainGame extends Forge2DGame {
         h: scale.y,
         time: DateTime.now(),
         type: FallingBodyType.minutes,
+        backgroundColor: Colors.primaries[_materialColorIndex],
       );
       await add(fallingBody);
       minuteBodies.add(fallingBody);
     }
 
-    if (_hour != currentHour) {
+    if (oneHourPassed) {
       _hour = currentHour;
 
       for (final fallingBody in minuteBodies) {
@@ -123,9 +134,17 @@ class ClockRainGame extends Forge2DGame {
         h: scale.y,
         time: DateTime.now(),
         type: FallingBodyType.hour,
+        backgroundColor: Colors.primaries[_materialColorIndex],
       );
       await add(fallingBody);
       hourBodies.add(fallingBody);
+    }
+  }
+
+  void _switchColor() {
+    _materialColorIndex += 1;
+    if (_materialColorIndex >= Colors.primaries.length) {
+      _materialColorIndex = 0;
     }
   }
 
@@ -165,17 +184,17 @@ class ClockRainGame extends Forge2DGame {
     }
 
     secondBodies.removeWhere((e) {
-      final tooSmall = e.w < 0.1 || e.h < 0.1;
+      final tooSmall = e.w < 0.2 || e.h < 0.2;
       if (tooSmall) e.removeFromParent();
       return tooSmall;
     });
     minuteBodies.removeWhere((e) {
-      final tooSmall = e.w < 0.1 || e.h < 0.1;
+      final tooSmall = e.w < 0.2 || e.h < 0.2;
       if (tooSmall) e.removeFromParent();
       return tooSmall;
     });
     hourBodies.removeWhere((e) {
-      final tooSmall = e.w < 0.1 || e.h < 0.1;
+      final tooSmall = e.w < 0.2 || e.h < 0.2;
       if (tooSmall) e.removeFromParent();
       return tooSmall;
     });
@@ -216,6 +235,7 @@ class ClockFallingBody extends BodyComponent {
   final DateTime time;
   final FallingBodyType type;
   final double angularVelocity;
+  final Color backgroundColor;
   double w;
   double h;
   double shrinkRate;
@@ -226,6 +246,7 @@ class ClockFallingBody extends BodyComponent {
     required this.type,
     required this.w,
     required this.h,
+    required this.backgroundColor,
     this.angularVelocity = 0,
     this.shrinkRate = 1,
   });
@@ -248,9 +269,9 @@ class ClockFallingBody extends BodyComponent {
     };
 
     final density = switch (type) {
-      FallingBodyType.seconds => 1,
-      FallingBodyType.minutes => 0,
-      FallingBodyType.hour => 0,
+      FallingBodyType.seconds => 0.1,
+      FallingBodyType.minutes => 0.2,
+      FallingBodyType.hour => 0.3,
     };
 
     final body = world.createBody(bodyDef);
@@ -262,7 +283,11 @@ class ClockFallingBody extends BodyComponent {
       friction: friction,
     );
     body.createFixture(fixtureDef);
-    renderBody = true;
+    renderBody = false;
+    paint = Paint()..color = backgroundColor;
+
+    add(ClockFallingText(parent: this));
+
     return body;
   }
 
@@ -270,5 +295,43 @@ class ClockFallingBody extends BodyComponent {
   void onRemove() {
     world.destroyBody(body);
     super.onRemove();
+  }
+}
+
+class ClockFallingText extends TextComponent {
+  @override
+  final ClockFallingBody parent;
+
+  ClockFallingText({
+    super.text,
+    super.textRenderer,
+    super.anchor,
+    required this.parent,
+  });
+
+  @override
+  FutureOr<void> onLoad() {
+    final msg = switch (parent.type) {
+      FallingBodyType.seconds => parent.time.second,
+      FallingBodyType.minutes => parent.time.minute,
+      FallingBodyType.hour => parent.time.hour,
+    };
+    text = msg.toString().padLeft(2, '0');
+    anchor = Anchor.center;
+
+    return super.onLoad();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    size = Vector2(parent.w, parent.h);
+    scale = Vector2(parent.w / 15, parent.h / 15);
+
+    textRenderer = TextPaint(
+      style: const TextStyle(
+        color: Colors.white,
+      ),
+    );
   }
 }

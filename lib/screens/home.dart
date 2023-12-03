@@ -84,7 +84,7 @@ class _HomeState extends ConsumerState<Home> {
               style: secondTextStyle,
             ),
           ),
-          // GameWidget<GameSide>(
+// GameWidget<GameSide>(
           //   game: myGame,
           //   overlayBuilderMap: {
           //     'falling_screen': (context, game) => GameMirror(game: game),
@@ -96,7 +96,7 @@ class _HomeState extends ConsumerState<Home> {
             overlayBuilderMap: {
               'clockRainScreen': (context, game) => ClockRainScreen(game: game),
             },
-            // initialActiveOverlays: const ['clockRainScreen'],
+            initialActiveOverlays: const ['clockRainScreen'],
           ),
         ],
       ),
