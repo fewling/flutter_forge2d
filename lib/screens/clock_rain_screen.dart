@@ -53,12 +53,17 @@ class ClockRainScreen extends ConsumerWidget {
     final syze = renderObj?.semanticBounds.size ?? Size.zero;
     final offset = game.screenToWorld(Vector2(syze.width / 2, syze.height / 2));
     final pos = game.worldToScreen(body.body.worldCenter - offset);
+    final msg = switch (body.type) {
+      FallingBodyType.seconds => body.time.second,
+      FallingBodyType.minutes => body.time.minute,
+      FallingBodyType.hour => body.time.hour,
+    };
 
     return ClockFallingWidget(
       left: pos.x,
       top: pos.y,
       angle: body.angle,
-      msg: body.msg,
+      msg: msg.toString(),
       style: textStyle,
     );
   }

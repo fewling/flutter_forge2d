@@ -51,7 +51,7 @@ class ClockRainGame extends Forge2DGame {
     super.onRemove();
   }
 
-  void _tick() {
+  Future<void> _tick() async {
     final current = DateTime.now();
     final currentSec = current.second;
     final currentMin = current.minute;
@@ -60,6 +60,7 @@ class ClockRainGame extends Forge2DGame {
 
     if (_second != currentSec) {
       _second = currentSec;
+
       final renderObj = measureSecondsKey.currentContext?.findRenderObject();
       final syze = renderObj?.semanticBounds.size ?? Size.zero;
       final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
@@ -68,16 +69,21 @@ class ClockRainGame extends Forge2DGame {
         pos: Vector2(worldSize.x - scale.x, -scale.y),
         w: scale.x,
         h: scale.y,
-        msg: _second.toString().padLeft(2, '0'),
+        time: DateTime.now(),
         type: FallingBodyType.seconds,
-        angularVelocity: Random().nextDouble() * pi * 2,
+        angularVelocity: -Random().nextDouble() * pi * 2,
       );
-      add(fallingBody);
+      await add(fallingBody);
       secondBodies.add(fallingBody);
     }
 
     if (_minute != currentMin) {
       _minute = currentMin;
+
+      for (final fallingBody in secondBodies) {
+        if (fallingBody.time.minute == currentMin) continue;
+        fallingBody.shrinkRate = 0.9;
+      }
 
       final renderObj = measureMinutesKey.currentContext?.findRenderObject();
       final syze = renderObj?.semanticBounds.size ?? Size.zero;
@@ -87,15 +93,25 @@ class ClockRainGame extends Forge2DGame {
         pos: Vector2(worldSize.x / 2, -scale.y),
         w: scale.x,
         h: scale.y,
-        msg: _minute.toString().padLeft(2, '0'),
+        time: DateTime.now(),
         type: FallingBodyType.minutes,
       );
-      add(fallingBody);
+      await add(fallingBody);
       minuteBodies.add(fallingBody);
     }
 
     if (_hour != currentHour) {
       _hour = currentHour;
+
+      for (final fallingBody in minuteBodies) {
+        if (fallingBody.time.hour == currentHour) continue;
+        fallingBody.shrinkRate = 0.9;
+      }
+
+      for (final fallingBody in hourBodies) {
+        if (fallingBody.time.hour == currentHour) continue;
+        fallingBody.shrinkRate = 0.9;
+      }
 
       final renderObj = measureHoursKey.currentContext?.findRenderObject();
       final syze = renderObj?.semanticBounds.size ?? Size.zero;
@@ -105,10 +121,10 @@ class ClockRainGame extends Forge2DGame {
         pos: Vector2(scale.x, -scale.y),
         w: scale.x,
         h: scale.y,
-        msg: _hour.toString().padLeft(2, '0'),
+        time: DateTime.now(),
         type: FallingBodyType.hour,
       );
-      add(fallingBody);
+      await add(fallingBody);
       hourBodies.add(fallingBody);
     }
   }
@@ -125,6 +141,44 @@ class ClockRainGame extends Forge2DGame {
       Wall(bottomRight, bottomLeft),
       Wall(bottomLeft, topLeft),
     ]);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    final allBodies = [...secondBodies, ...minuteBodies, ...hourBodies];
+
+    for (final fallingBody in allBodies) {
+      if (fallingBody.shrinkRate == 1) continue;
+
+      fallingBody.w *= fallingBody.shrinkRate;
+      fallingBody.h *= fallingBody.shrinkRate;
+
+      for (final fixture in fallingBody.body.fixtures) {
+        fixture.shape = PolygonShape()
+          ..setAsBoxXY(
+            fallingBody.w,
+            fallingBody.h,
+          );
+      }
+    }
+
+    secondBodies.removeWhere((e) {
+      final tooSmall = e.w < 0.1 || e.h < 0.1;
+      if (tooSmall) e.removeFromParent();
+      return tooSmall;
+    });
+    minuteBodies.removeWhere((e) {
+      final tooSmall = e.w < 0.1 || e.h < 0.1;
+      if (tooSmall) e.removeFromParent();
+      return tooSmall;
+    });
+    hourBodies.removeWhere((e) {
+      final tooSmall = e.w < 0.1 || e.h < 0.1;
+      if (tooSmall) e.removeFromParent();
+      return tooSmall;
+    });
   }
 }
 
@@ -159,19 +213,21 @@ enum FallingBodyType {
 
 class ClockFallingBody extends BodyComponent {
   final Vector2 pos;
-  final double w;
-  final double h;
-  final String msg;
+  final DateTime time;
   final FallingBodyType type;
   final double angularVelocity;
+  double w;
+  double h;
+  double shrinkRate;
 
   ClockFallingBody({
     required this.pos,
-    required this.msg,
+    required this.time,
     required this.type,
     required this.w,
     required this.h,
     this.angularVelocity = 0,
+    this.shrinkRate = 1,
   });
 
   @override
@@ -191,16 +247,22 @@ class ClockFallingBody extends BodyComponent {
       FallingBodyType.hour => 0.1,
     };
 
+    final density = switch (type) {
+      FallingBodyType.seconds => 1,
+      FallingBodyType.minutes => 0,
+      FallingBodyType.hour => 0,
+    };
+
     final body = world.createBody(bodyDef);
     final shape = PolygonShape()..setAsBoxXY(w, h);
     final fixtureDef = FixtureDef(
       shape,
-      density: type == FallingBodyType.seconds ? 1 : 5,
+      density: density.toDouble(),
       restitution: restitution,
       friction: friction,
     );
     body.createFixture(fixtureDef);
-    renderBody = false;
+    renderBody = true;
     return body;
   }
 

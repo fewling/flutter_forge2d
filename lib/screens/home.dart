@@ -96,7 +96,7 @@ class _HomeState extends ConsumerState<Home> {
             overlayBuilderMap: {
               'clockRainScreen': (context, game) => ClockRainScreen(game: game),
             },
-            initialActiveOverlays: const ['clockRainScreen'],
+            // initialActiveOverlays: const ['clockRainScreen'],
           ),
         ],
       ),
