@@ -286,7 +286,7 @@ class ClockFallingBody extends BodyComponent {
     renderBody = false;
     paint = Paint()..color = backgroundColor;
 
-    add(ClockFallingText(parent: this));
+    add(ClockFallingTextComponent(parent: this));
 
     return body;
   }
@@ -298,11 +298,11 @@ class ClockFallingBody extends BodyComponent {
   }
 }
 
-class ClockFallingText extends TextComponent {
+class ClockFallingTextComponent extends TextComponent {
   @override
   final ClockFallingBody parent;
 
-  ClockFallingText({
+  ClockFallingTextComponent({
     super.text,
     super.textRenderer,
     super.anchor,

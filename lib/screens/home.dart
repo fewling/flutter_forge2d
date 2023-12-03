@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../game/clock_rain_game.dart';
-import '../game/game_side.dart';
 import '../services/pref_providers.dart';
 import 'clock_rain_screen.dart';
-import 'game_mirror.dart';
 
 /// Since all the falling widgets are the same, we can place an invisible one on the screen,
 /// then use this key to obtain the `currentContext`, in turn the size of the widget.
@@ -25,9 +23,6 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
-  final _speed = 100 / 1000; // 100 ms
-  var myGame = GameSide();
-
   final clockRainGame = ClockRainGame();
 
   @override
@@ -63,7 +58,7 @@ class _HomeState extends ConsumerState<Home> {
           Opacity(
             key: measureHoursKey,
             opacity: op,
-            child: FallingText(
+            child: ClockFallingTextWidget(
               '03',
               style: hourTextStyle,
             ),
@@ -71,7 +66,7 @@ class _HomeState extends ConsumerState<Home> {
           Opacity(
             key: measureMinutesKey,
             opacity: op,
-            child: FallingText(
+            child: ClockFallingTextWidget(
               '02',
               style: minuteTextStyle,
             ),
@@ -79,18 +74,11 @@ class _HomeState extends ConsumerState<Home> {
           Opacity(
             key: measureSecondsKey,
             opacity: op,
-            child: FallingText(
+            child: ClockFallingTextWidget(
               '01',
               style: secondTextStyle,
             ),
           ),
-// GameWidget<GameSide>(
-          //   game: myGame,
-          //   overlayBuilderMap: {
-          //     'falling_screen': (context, game) => GameMirror(game: game),
-          //   },
-          //   initialActiveOverlays: const ['falling_screen'],
-          // ),
           GameWidget<ClockRainGame>(
             game: clockRainGame,
             overlayBuilderMap: {

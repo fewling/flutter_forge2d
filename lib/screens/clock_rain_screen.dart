@@ -138,7 +138,7 @@ class ClockFallingWidget extends StatelessWidget {
           width: width,
           height: height,
           child: child ??
-              ClockFallingText(
+              ClockFallingTextWidget(
                 msg.toString().padLeft(2, '0'),
                 style: style,
                 backgroundColor: body.backgroundColor,
@@ -149,8 +149,8 @@ class ClockFallingWidget extends StatelessWidget {
   }
 }
 
-class ClockFallingText extends StatelessWidget {
-  const ClockFallingText(
+class ClockFallingTextWidget extends StatelessWidget {
+  const ClockFallingTextWidget(
     this.msg, {
     super.key,
     this.style,
