@@ -59,32 +59,20 @@ class ClockRainGame extends Forge2DGame {
     final currentSec = current.second;
     final currentMin = current.minute;
     final currentHour = current.hour;
-    final worldSize = screenToWorld(camera.viewport.effectiveSize);
 
     final oneSecPassed = _second != currentSec;
     final oneMinPassed = _minute != currentMin;
     final oneHourPassed = _hour != currentHour;
 
-    if (oneHourPassed) _switchColor();
+    if (oneMinPassed) _switchColor();
+
+    final backgroundColor =
+        Colors.primaries[_materialColorIndex].withOpacity(0.7);
 
     if (oneSecPassed) {
       _second = currentSec;
 
-      final renderObj = measureSecondsKey.currentContext?.findRenderObject();
-      final syze = renderObj?.semanticBounds.size ?? Size.zero;
-      final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
-
-      final fallingBody = ClockFallingBody(
-        pos: Vector2(worldSize.x - scale.x, -scale.y),
-        w: scale.x,
-        h: scale.y,
-        time: DateTime.now(),
-        type: FallingBodyType.seconds,
-        angularVelocity: -Random().nextDouble() * pi * 2,
-        backgroundColor: Colors.primaries[_materialColorIndex],
-      );
-      await add(fallingBody);
-      secondBodies.add(fallingBody);
+      await _createSecondBody(backgroundColor);
     }
 
     if (oneMinPassed) {
@@ -95,20 +83,7 @@ class ClockRainGame extends Forge2DGame {
         fallingBody.shrinkRate = 0.9;
       }
 
-      final renderObj = measureMinutesKey.currentContext?.findRenderObject();
-      final syze = renderObj?.semanticBounds.size ?? Size.zero;
-      final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
-
-      final fallingBody = ClockFallingBody(
-        pos: Vector2(worldSize.x / 2, -scale.y),
-        w: scale.x,
-        h: scale.y,
-        time: DateTime.now(),
-        type: FallingBodyType.minutes,
-        backgroundColor: Colors.primaries[_materialColorIndex],
-      );
-      await add(fallingBody);
-      minuteBodies.add(fallingBody);
+      await _createMinuteBody(backgroundColor);
     }
 
     if (oneHourPassed) {
@@ -124,21 +99,70 @@ class ClockRainGame extends Forge2DGame {
         fallingBody.shrinkRate = 0.9;
       }
 
-      final renderObj = measureHoursKey.currentContext?.findRenderObject();
-      final syze = renderObj?.semanticBounds.size ?? Size.zero;
-      final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
-
-      final fallingBody = ClockFallingBody(
-        pos: Vector2(scale.x, -scale.y),
-        w: scale.x,
-        h: scale.y,
-        time: DateTime.now(),
-        type: FallingBodyType.hour,
-        backgroundColor: Colors.primaries[_materialColorIndex],
-      );
-      await add(fallingBody);
-      hourBodies.add(fallingBody);
+      await _createHourBody(backgroundColor);
     }
+  }
+
+  Future<void> _createSecondBody(Color backgroundColor) async {
+    final worldSize = screenToWorld(camera.viewport.effectiveSize);
+    final renderObj = measureSecondsKey.currentContext?.findRenderObject();
+    final syze = renderObj?.semanticBounds.size ?? Size.zero;
+    final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
+
+    final fallingBody = ClockFallingBody(
+      pos: Vector2(worldSize.x - scale.x, -scale.y),
+      w: scale.x,
+      h: scale.y,
+      time: DateTime.now(),
+      type: FallingBodyType.seconds,
+      angularVelocity: -Random().nextDouble() * pi * 2,
+      backgroundColor: backgroundColor,
+    );
+    await add(fallingBody);
+    secondBodies.add(fallingBody);
+  }
+
+  Future<void> _createMinuteBody(Color backgroundColor) async {
+    final minuteRenderObj =
+        measureMinutesKey.currentContext?.findRenderObject();
+    final minuteSize = minuteRenderObj?.semanticBounds.size ?? Size.zero;
+    final minuteScale =
+        screenToWorld(Vector2(minuteSize.width / 2, minuteSize.height / 2));
+
+    final hourRenderObj = measureHoursKey.currentContext?.findRenderObject();
+    final hourSize = hourRenderObj?.semanticBounds.size ?? Size.zero;
+    final hourScale =
+        screenToWorld(Vector2(hourSize.width / 2, hourSize.height / 2));
+
+    final spawnX = hourScale.x * 2.5;
+
+    final fallingBody = ClockFallingBody(
+      pos: Vector2(spawnX, -minuteScale.y),
+      w: minuteScale.x,
+      h: minuteScale.y,
+      time: DateTime.now(),
+      type: FallingBodyType.minutes,
+      backgroundColor: backgroundColor,
+    );
+    await add(fallingBody);
+    minuteBodies.add(fallingBody);
+  }
+
+  Future<void> _createHourBody(Color backgroundColor) async {
+    final renderObj = measureHoursKey.currentContext?.findRenderObject();
+    final syze = renderObj?.semanticBounds.size ?? Size.zero;
+    final scale = screenToWorld(Vector2(syze.width / 2, syze.height / 2));
+
+    final fallingBody = ClockFallingBody(
+      pos: Vector2(scale.x, -scale.y),
+      w: scale.x,
+      h: scale.y,
+      time: DateTime.now(),
+      type: FallingBodyType.hour,
+      backgroundColor: backgroundColor,
+    );
+    await add(fallingBody);
+    hourBodies.add(fallingBody);
   }
 
   void _switchColor() {
