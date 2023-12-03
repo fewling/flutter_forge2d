@@ -63,7 +63,7 @@ class GameSide extends Forge2DGame {
 
   Timer _initTimer({
     required double x,
-    Duration duration = const Duration(milliseconds: 100),
+    Duration duration = const Duration(milliseconds: 1000),
   }) {
     return Timer.periodic(
       duration,

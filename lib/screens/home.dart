@@ -4,8 +4,10 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../game/clock_rain_game.dart';
 import '../game/game_side.dart';
 import '../services/pref_providers.dart';
+import 'clock_rain_screen.dart';
 import 'game_mirror.dart';
 
 /// Since all the falling widgets are the same, we can place an invisible one on the screen,
@@ -13,6 +15,7 @@ import 'game_mirror.dart';
 /// So tha we can match the size of the [FallingWidget] and [FallingBody].
 final measureSecondsKey = GlobalKey();
 final measureMinutesKey = GlobalKey();
+final measureHoursKey = GlobalKey();
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -22,14 +25,19 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
-  var _speed = 100 / 1000; // 100 ms
+  final _speed = 100 / 1000; // 100 ms
   var myGame = GameSide();
+
+  final clockRainGame = ClockRainGame();
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final displayLarge = Theme.of(context).textTheme.displayLarge;
-    final titleLarge = Theme.of(context).textTheme.titleLarge;
+
+    final hourTextStyle = Theme.of(context).textTheme.displayLarge;
+    final minuteTextStyle = Theme.of(context).textTheme.headlineLarge;
+    final secondTextStyle = Theme.of(context).textTheme.labelLarge;
+    const op = 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,58 +55,48 @@ class _HomeState extends ConsumerState<Home> {
             ),
           ),
           const SizedBox(width: 8),
-          Tooltip(
-            message: 'Restart',
-            child: IconButton(
-              onPressed: () => setState(() => myGame.reset()),
-              icon: const Icon(Icons.restart_alt_outlined),
-            ),
-          ),
-          const SizedBox(width: 8),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Slider(
-            value: _speed,
-            min: 0.1,
-            max: 10,
-            label: '${_speed.toStringAsPrecision(2)} (sec)',
-            divisions: 100,
-            onChanged: (value) {
-              final ms = (value * 1000).toInt();
-              setState(() {
-                _speed = value;
-                myGame.resetTimer(Duration(milliseconds: ms));
-              });
-            },
-          ),
-        ),
       ),
       body: Stack(
         children: [
           // Place at the bottom layer just to measure the size of the widget.
           Opacity(
-            key: measureSecondsKey,
-            opacity: 0.0,
+            key: measureHoursKey,
+            opacity: op,
             child: FallingText(
-              '01',
-              style: titleLarge,
+              '03',
+              style: hourTextStyle,
             ),
           ),
           Opacity(
             key: measureMinutesKey,
-            opacity: 0.0,
+            opacity: op,
             child: FallingText(
-              '01',
-              style: displayLarge,
+              '02',
+              style: minuteTextStyle,
             ),
           ),
-          GameWidget<GameSide>(
-            game: myGame,
+          Opacity(
+            key: measureSecondsKey,
+            opacity: op,
+            child: FallingText(
+              '01',
+              style: secondTextStyle,
+            ),
+          ),
+          // GameWidget<GameSide>(
+          //   game: myGame,
+          //   overlayBuilderMap: {
+          //     'falling_screen': (context, game) => GameMirror(game: game),
+          //   },
+          //   initialActiveOverlays: const ['falling_screen'],
+          // ),
+          GameWidget<ClockRainGame>(
+            game: clockRainGame,
             overlayBuilderMap: {
-              'falling_screen': (context, game) => GameMirror(game: game),
+              'clockRainScreen': (context, game) => ClockRainScreen(game: game),
             },
-            initialActiveOverlays: const ['falling_screen'],
+            initialActiveOverlays: const ['clockRainScreen'],
           ),
         ],
       ),
